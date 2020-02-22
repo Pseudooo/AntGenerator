@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "util/vector.h"
 
@@ -50,6 +51,26 @@ int main(int argc, char* argv[]) {
     }
 
     // TODO Allow for digest data
+
+    if(argc != 2) {
+        printf("Invalid File!\n");
+        return 0;
+    }
+
+    // Check the file is ok
+    FILE* f;
+    if((f = fopen(argv[1], "rb")) == NULL) {
+        fclose(f);
+        printf("File Error!\n");
+        return 0;
+    }
+
+    unsigned char buffer[256]
+    while(fread(buffer, sizeof(buffer), 1, f) != 0) {
+
+        // TODO Process buffer
+
+    } 
 
 }
 
