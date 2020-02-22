@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "util/vector.h"
 
 // Setup 64^2 binary grid
@@ -10,16 +11,25 @@ typedef struct {
     Vector vel;
 } Ant;
 
-int main() {    
+int get_bit(Vector* v);
+void tog_bit(Vector* v);
 
+int main() {  
+
+    printf("Executing...");
     
-    
+    // init grid
+    for(int i = 0; i < 64; i++)
+        grid[i] = 0L;
+
+    // ...
+
 }
 
 int get_bit(Vector* v) {
-    return grid[v->j] && 1 << v->i != 0;
+    return (grid[v->j] & (1L << v->i)) != 0;
 }
 
-void check_bit(Vector* v) {
-    grid[v->j] ^= 1 << v->i
+void tog_bit(Vector* v) {
+    grid[v->j] ^= 1L << v->i;
 }
