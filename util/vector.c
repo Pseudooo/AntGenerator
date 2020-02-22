@@ -1,4 +1,3 @@
-
 #include "vector.h"
 
 void rotate_cw(Vector* v) {
@@ -16,5 +15,13 @@ void rotate_acw(Vector* v) {
     int tmp = v -> i;
     v -> i = -1 * v -> j;
     v -> j = tmp;
+
+}
+
+void vec_add(Vector* v1, Vector* v2) {
+
+    // Set v1 = v1 + v2
+    v1->i += v2->i;
+    v1->j += v2->j;
 
 }
