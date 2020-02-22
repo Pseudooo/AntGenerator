@@ -9,4 +9,6 @@ typedef struct {
 void rotate_cw(Vector* vector);
 void rotate_acw(Vector* vector);
 
+void vec_add(Vector* v1, Vector* v2);
+
 #endif 
