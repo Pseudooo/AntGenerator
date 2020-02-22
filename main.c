@@ -31,6 +31,12 @@ int main(int argc, char* argv[]) {
         for(int j = 0; j < 8; j++) {
             int idx = i + j*8;
 
+            /*
+                All ants are initialized to the 0,0 bit
+                of their respective 8x8 block and also
+                looking "up" (1,0)
+            */
+
             Vector v;
             v.i = 1;
             v.j = 0;
@@ -49,21 +55,24 @@ int main(int argc, char* argv[]) {
 
 void tick() {
 
+    // Perform a tick for each ant
     for(int i = 0; i < 64; i++) {
+        // pos & vel respectively
         Vector* r = &ants[i].pos;
         Vector* v = &ants[i].vel;
 
-        if(get_bit(r)) {
+        if(get_bit(r)) { // cellular rule
             rotate_cw(v);
         }else{
             rotate_acw(v);
         }
 
+        // Toggle cur bit and move
         tog_bit(r);
-
         vec_add(r, v);
 
-        if(r->i >= 64) {
+        // Handle wrapping if ant leaves grid bounds
+        if(r->i >= 64) {        
             r->i = 0;
         }else if(r->i < 0) {
             r->i = 63;
@@ -79,10 +88,12 @@ void tick() {
 
 }
 
+// Get the bit located at position v
 int get_bit(Vector* v) {
     return (grid[v->j] & (1L << v->i)) != 0;
 }
 
+// Toggle bit located at position v
 void tog_bit(Vector* v) {
     grid[v->j] ^= 1L << v->i;
 }
