@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "util/vector.h"
 
@@ -11,6 +12,7 @@ typedef struct {
 int get_bit(Vector* v);
 void tog_bit(Vector* v);
 
+void digest(FILE* f);
 void tick();
 
 // Setup 64^2 binary grid
@@ -18,10 +20,36 @@ unsigned long grid[64];
 
 Ant ants[64];
 
+void pg() {
+
+    Vector v;
+    for(v.i = 0; v.i < 64; v.i++) {
+        for(v.j = 0; v.j < 64; v.j++)
+            printf("%c", get_bit(&v) ? '#' : ' ');
+        printf("\n");
+    }
+
+}
+
 int main(int argc, char* argv[]) {  
 
-    printf("Initializing...\n");
-    
+    // Check correct arguments have been provided
+    if(argc != 2) {
+        printf("Invalid Arguments!\n");
+        printf("Please provide a file!\n");
+        return 0;
+    }
+
+    // Check the file is ok for reading
+    FILE* f;
+    if((f = fopen(argv[1], "rb")) == NULL) {
+        fclose(f);
+        printf("File Error!\n");
+        return 0;
+    }
+
+    printf("Initializing State...\n");
+
     // init grid
     for(int i = 0; i < 64; i++)
         grid[i] = 0L;
@@ -29,7 +57,7 @@ int main(int argc, char* argv[]) {
     // init ants
     for(int i = 0; i < 8; i++) {
         for(int j = 0; j < 8; j++) {
-            int idx = i + j*8;
+            int idx = i + j*8; // R² => R
 
             /*
                 All ants are initialized to the 0,0 bit
@@ -49,7 +77,76 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // TODO Allow for digest data
+    printf("Digesting Data...\n");
+    digest(f); fclose(f);
+
+    // Perform 1024 ticks
+    for(int i = 0; i < 8192; i++)
+        tick();
+
+    // Extract 64 bits from grid
+    unsigned long out = 0L;
+    for(int i = 0; i < 64; i++)
+        out ^= grid[i];
+
+    printf("Generated: %16lX\n", out);
+    return 0;
+
+}
+
+void digest(FILE* f) {
+
+    /*
+        One block is enough data to digest into the grid
+        once. Block contains 128 bytes, 2 bytes per Ant.
+    */
+    const unsigned int BLOCK_SIZE = 128;
+
+    /*
+        Buffer will contain an integer multiple of blocks
+    */
+    const unsigned int BUFFER_SIZE = BLOCK_SIZE * 64;
+
+    // Create and init buffer
+    unsigned char buffer[BUFFER_SIZE];
+    for(int i = 0; i < BUFFER_SIZE; i++)
+        buffer[i] = 0;
+
+    while(fread(buffer, 1, BUFFER_SIZE, f)) {
+        // Read into buffer
+
+        // Divide buffer into blocks for ease
+        for(int offset = 0; offset < BUFFER_SIZE; offset += BLOCK_SIZE) {
+            unsigned char* block = &buffer[offset];
+
+            // Process individual block
+            for(int i = 0; i < 64; i++) {
+                Ant* ant = &ants[i];
+
+                // Digest left-byte into init pos
+                int shift = block[i*2] % 64;
+                Vector v;
+                v.i = shift % 8;
+                v.j = shift / 8;
+
+                // Pad ant's square
+                vec_add(&ant->pos, &v);
+                if(ant->pos.i >= (i % 8) * 8 + 8)
+                    ant->pos.i -= 8;
+
+                if(ant->pos.j >= (i / 8) * 8 + 8)
+                    ant->pos.j -= 8;
+
+                // Digest right-byte into init vel
+                int rot = block[i*2 + 1] % 4;
+                for(int j = 0; j < rot; j++)
+                    rotate_cw(&ant->vel);
+
+            }
+
+        }
+
+    }
 
 }
 
