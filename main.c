@@ -21,8 +21,23 @@ Ant ants[64];
 
 int main(int argc, char* argv[]) {  
 
-    printf("Initializing...\n");
-    
+    // Check correct arguments have been provided
+    if(argc != 2) {
+        printf("Invalid Arguments!\n");
+        printf("Please provide a file!\n");
+        return 0;
+    }
+
+    // Check the file is ok for reading
+    FILE* f;
+    if((f = fopen(argv[1], "rb")) == NULL) {
+        fclose(f);
+        printf("File Error!\n");
+        return 0;
+    }
+
+    printf("Initializing State...\n");
+
     // init grid
     for(int i = 0; i < 64; i++)
         grid[i] = 0L;
@@ -50,27 +65,21 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // TODO Allow for digest data
+    printf("Digesting Data...\n");
 
-    if(argc != 2) {
-        printf("Invalid File!\n");
-        return 0;
-    }
+    // TODO Implement Digest function
 
-    // Check the file is ok
-    FILE* f;
-    if((f = fopen(argv[1], "rb")) == NULL) {
-        fclose(f);
-        printf("File Error!\n");
-        return 0;
-    }
+    // Perform 1024 ticks
+    for(int i = 0; i < 1024; i++)
+        tick();
 
-    unsigned char buffer[256]
-    while(fread(buffer, sizeof(buffer), 1, f) != 0) {
+    // Extract 64 bits from grid
+    unsigned long out = 0L;
+    for(int i = 0; i < 64; i++)
+        out ^= grid[i];
 
-        // TODO Process buffer
-
-    } 
+    printf("Generated: %20lu\n", out);
+    return 0;
 
 }
 
