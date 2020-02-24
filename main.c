@@ -12,12 +12,24 @@ typedef struct {
 int get_bit(Vector* v);
 void tog_bit(Vector* v);
 
+void digest(FILE* f);
 void tick();
 
 // Setup 64^2 binary grid
 unsigned long grid[64];
 
 Ant ants[64];
+
+void pg() {
+
+    Vector v;
+    for(v.i = 0; v.i < 64; v.i++) {
+        for(v.j = 0; v.j < 64; v.j++)
+            printf("%c", get_bit(&v) ? '#' : ' ');
+        printf("\n");
+    }
+
+}
 
 int main(int argc, char* argv[]) {  
 
@@ -45,7 +57,7 @@ int main(int argc, char* argv[]) {
     // init ants
     for(int i = 0; i < 8; i++) {
         for(int j = 0; j < 8; j++) {
-            int idx = i + j*8;
+            int idx = i + j*8; // R² => R
 
             /*
                 All ants are initialized to the 0,0 bit
@@ -66,10 +78,36 @@ int main(int argc, char* argv[]) {
     }
 
     printf("Digesting Data...\n");
+    digest(f); fclose(f);
 
+    // Perform 1024 ticks
+    for(int i = 0; i < 8192; i++)
+        tick();
+
+    // Extract 64 bits from grid
+    unsigned long out = 0L;
+    for(int i = 0; i < 64; i++)
+        out ^= grid[i];
+
+    printf("Generated: %16lX\n", out);
+    return 0;
+
+}
+
+void digest(FILE* f) {
+
+    /*
+        One block is enough data to digest into the grid
+        once. Block contains 128 bytes, 2 bytes per Ant.
+    */
     const unsigned int BLOCK_SIZE = 128;
+
+    /*
+        Buffer will contain an integer multiple of blocks
+    */
     const unsigned int BUFFER_SIZE = BLOCK_SIZE * 64;
 
+    // Create and init buffer
     unsigned char buffer[BUFFER_SIZE];
     for(int i = 0; i < BUFFER_SIZE; i++)
         buffer[i] = 0;
@@ -77,11 +115,12 @@ int main(int argc, char* argv[]) {
     while(fread(buffer, 1, BUFFER_SIZE, f)) {
         // Read into buffer
 
-        // Iter over blocks in buffer
+        // Divide buffer into blocks for ease
         for(int offset = 0; offset < BUFFER_SIZE; offset += BLOCK_SIZE) {
             unsigned char* block = &buffer[offset];
 
-            for(int i = 0; i < 64; i++) { // Process respective block
+            // Process individual block
+            for(int i = 0; i < 64; i++) {
                 Ant* ant = &ants[i];
 
                 // Digest left-byte into init pos
@@ -90,7 +129,7 @@ int main(int argc, char* argv[]) {
                 v.i = shift % 8;
                 v.j = shift / 8;
 
-                // Pad square
+                // Pad ant's square
                 vec_add(&ant->pos, &v);
                 if(ant->pos.i >= (i % 8) * 8 + 8)
                     ant->pos.i -= 8;
@@ -108,18 +147,6 @@ int main(int argc, char* argv[]) {
         }
 
     }
-
-    // Perform 1024 ticks
-    for(int i = 0; i < 1024; i++)
-        tick();
-
-    // Extract 64 bits from grid
-    unsigned long out = 0L;
-    for(int i = 0; i < 64; i++)
-        out ^= grid[i];
-
-    printf("Generated: %20lu\n", out);
-    return 0;
 
 }
 
