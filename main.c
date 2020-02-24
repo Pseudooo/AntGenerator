@@ -20,17 +20,6 @@ unsigned long grid[64];
 
 Ant ants[64];
 
-void pg() {
-
-    Vector v;
-    for(v.i = 0; v.i < 64; v.i++) {
-        for(v.j = 0; v.j < 64; v.j++)
-            printf("%c", get_bit(&v) ? '#' : ' ');
-        printf("\n");
-    }
-
-}
-
 int main(int argc, char* argv[]) {  
 
     // Check correct arguments have been provided
