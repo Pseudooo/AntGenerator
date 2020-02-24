@@ -5,6 +5,8 @@ AntHasher is a project I've made where I use the Cellular Automata, Langton's An
 
  - [Langton's Ant](#Langtons-Ant)
  - [Using Langton's Ant](#Using-Langtons-Ant)
+ - [Digesting Data](#Digesting-Data)
+ - [The Implementation](#The-Implementation)
 
 ## Langton's Ant
 
