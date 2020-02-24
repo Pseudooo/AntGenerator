@@ -90,11 +90,12 @@ void digest(FILE* f) {
         once. Block contains 128 bytes, 2 bytes per Ant.
     */
     const unsigned int BLOCK_SIZE = 128;
+    const unsigned int BLOCK_QTY = 512;
 
     /*
         Buffer will contain an integer multiple of blocks
     */
-    const unsigned int BUFFER_SIZE = BLOCK_SIZE * 64;
+    const unsigned int BUFFER_SIZE = BLOCK_SIZE * BLOCK_QTY; // 64KB
 
     // Create and init buffer
     unsigned char buffer[BUFFER_SIZE];
