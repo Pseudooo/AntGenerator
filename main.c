@@ -90,12 +90,19 @@ void digest(FILE* f) {
         once. Block contains 128 bytes, 2 bytes per Ant.
     */
     const unsigned int BLOCK_SIZE = 128;
-    const unsigned int BLOCK_QTY = 512;
+    const unsigned int BLOCK_QTY = 2048;
 
     /*
         Buffer will contain an integer multiple of blocks
     */
-    const unsigned int BUFFER_SIZE = BLOCK_SIZE * BLOCK_QTY; // 64KB
+    const unsigned int BUFFER_SIZE = BLOCK_SIZE * BLOCK_QTY; // 256KB
+
+    //     GET LENGTH OF FILE
+    fseek(f, 0L, SEEK_END);
+    // Look for an alternative
+    const unsigned int len = ftell(f) / BUFFER_SIZE + 1;
+    unsigned int cur = 0;
+    fseek(f, 0L, SEEK_SET);
 
     // Create and init buffer
     unsigned char buffer[BUFFER_SIZE];
@@ -136,6 +143,9 @@ void digest(FILE* f) {
 
         }
 
+        // Have more verbose output for larger files
+        cur++;
+        printf("Digested Block [%d/%d]\n", cur, len);
     }
 
 }
