@@ -67,7 +67,47 @@ int main(int argc, char* argv[]) {
 
     printf("Digesting Data...\n");
 
-    // TODO Implement Digest function
+    const unsigned int BLOCK_SIZE = 128;
+    const unsigned int BUFFER_SIZE = BLOCK_SIZE * 64;
+
+    unsigned char buffer[BUFFER_SIZE];
+    for(int i = 0; i < BUFFER_SIZE; i++)
+        buffer[i] = 0;
+
+    while(fread(buffer, 1, BUFFER_SIZE, f)) {
+        // Read into buffer
+
+        // Iter over blocks in buffer
+        for(int offset = 0; offset < BUFFER_SIZE; offset += BLOCK_SIZE) {
+            unsigned char* block = &buffer[offset];
+
+            for(int i = 0; i < 64; i++) { // Process respective block
+                Ant* ant = &ants[i];
+
+                // Digest left-byte into init pos
+                int shift = block[i*2] % 64;
+                Vector v;
+                v.i = shift % 8;
+                v.j = shift / 8;
+
+                // Pad square
+                vec_add(&ant->pos, &v);
+                if(ant->pos.i >= (i % 8) * 8 + 8)
+                    ant->pos.i -= 8;
+
+                if(ant->pos.j >= (i / 8) * 8 + 8)
+                    ant->pos.j -= 8;
+
+                // Digest right-byte into init vel
+                int rot = block[i*2 + 1] % 4;
+                for(int j = 0; j < rot; j++)
+                    rotate_cw(&ant->vel);
+
+            }
+
+        }
+
+    }
 
     // Perform 1024 ticks
     for(int i = 0; i < 1024; i++)
