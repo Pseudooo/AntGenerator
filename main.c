@@ -15,6 +15,8 @@ void tog_bit(Vector* v);
 void digest(FILE* f);
 void tick();
 
+unsigned char* extract();
+
 // Setup 64^2 binary grid
 unsigned long grid[64];
 
@@ -73,12 +75,16 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < 8192; i++)
         tick();
 
-    // Extract 64 bits from grid
-    unsigned long out = 0L;
-    for(int i = 0; i < 64; i++)
-        out ^= grid[i];
+    unsigned char* hash = extract();
 
-    printf("Generated: %16lX\n", out);
+    printf("Key: ");
+    for(int i = 0; i < 15; i++) {
+        printf("%02X:", hash[i]);
+    }
+    printf("%02X\n", hash[15]);
+
+    free(hash);
+
     return 0;
 
 }
@@ -182,6 +188,29 @@ void tick() {
         }
 
     }
+
+}
+
+unsigned char* extract() {
+
+    // Initialize and extract grid into segs
+    unsigned long segs[2];
+    for(int i = 0; i < 2; i++)
+        segs[i] = 0L;
+
+    for(int i = 0; i < 64; i += 2)
+        for(int j = 0; j < 2; j++)
+            segs[j] ^= (i+j) % 3 == 0 ? grid[i+j] : ~grid[i+j];
+
+    // initialize byte array
+    unsigned char* hash = malloc(sizeof(char) * 16);
+    if(hash == NULL) return NULL;
+
+    // Convert segs into byte array
+    for(int i = 7; i < 16; i += 8)
+        hash[i] = segs[((i + 1) / 8) - 1];
+
+    return hash;
 
 }
 
