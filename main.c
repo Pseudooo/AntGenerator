@@ -15,6 +15,8 @@ void tog_bit(Vector* v);
 void digest(FILE* f);
 void tick();
 
+void hash_file(char* f_name);
+
 unsigned char* extract();
 
 // Setup 64^2 binary grid
@@ -23,23 +25,6 @@ unsigned long grid[64];
 Ant ants[64];
 
 int main(int argc, char* argv[]) {  
-
-    // Check correct arguments have been provided
-    if(argc != 2) {
-        printf("Invalid Arguments!\n");
-        printf("Please provide a file!\n");
-        return 0;
-    }
-
-    // Check the file is ok for reading
-    FILE* f;
-    if((f = fopen(argv[1], "rb")) == NULL) {
-        fclose(f);
-        printf("File Error!\n");
-        return 0;
-    }
-
-    printf("Initializing State...\n");
 
     // init grid
     for(int i = 0; i < 64; i++)
@@ -68,14 +53,20 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    printf("Digesting Data...\n");
-    digest(f); fclose(f);
+    // Check correct arguments have been provided
+    if(argc != 2) {
+        printf("Invalid Arguments!\n");
+        printf("Please provide a file!\n");
+        return 0;
+    }
 
     // Perform 1024 ticks
     for(int i = 0; i < 8192; i++)
         tick();
 
     unsigned char* hash = extract();
+
+    hash_file(argv[1]);
 
     printf("Key: ");
     for(int i = 0; i < 15; i++) {
@@ -89,69 +80,46 @@ int main(int argc, char* argv[]) {
 
 }
 
+void hash_file(char* f_name) {
+
+     // Check the file is ok for reading
+    FILE* f;
+    if((f = fopen(f_name, "rb")) == NULL) {
+        fclose(f);
+        printf("File Error!\n");
+        return;
+    }
+
+    printf("Digesting Data...\n");
+    digest(f); fclose(f);
+
+}
+
 void digest(FILE* f) {
 
     /*
-        One block is enough data to digest into the grid
-        once. Block contains 128 bytes, 2 bytes per Ant.
-    */
-    const unsigned int BLOCK_SIZE = 128;
-    const unsigned int BLOCK_QTY = 2048;
+        One "block" of data is the amount of data (in bytes) needed
+        to XOR into the grid once. Several blocks will be read into
+        the buffer at once to reduce IO calls.
+    */  
+    const unsigned int BLOCK_SIZE = 64; // 8x8byte grid => 64 bytes needed
+    const unsigned int BLOCK_QTY = 10;
+    const unsigned int BUFFER_SIZE = BLOCK_SIZE * BLOCK_QTY;
 
-    /*
-        Buffer will contain an integer multiple of blocks
-    */
-    const unsigned int BUFFER_SIZE = BLOCK_SIZE * BLOCK_QTY; // 256KB
-
-    //     GET LENGTH OF FILE
-    fseek(f, 0L, SEEK_END);
-    // Look for an alternative
-    const unsigned int len = ftell(f) / BUFFER_SIZE + 1;
-    unsigned int cur = 0;
-    fseek(f, 0L, SEEK_SET);
-
-    // Create and init buffer
-    unsigned char buffer[BUFFER_SIZE];
+    char* buffer[BUFFER_SIZE]; // init buffer
     for(int i = 0; i < BUFFER_SIZE; i++)
         buffer[i] = 0;
 
+    // Read into the buffer
     while(fread(buffer, 1, BUFFER_SIZE, f)) {
-        // Read into buffer
 
-        // Divide buffer into blocks for ease
+        // Process buffer into blocks for ease
         for(int offset = 0; offset < BUFFER_SIZE; offset += BLOCK_SIZE) {
-            unsigned char* block = &buffer[offset];
-
-            // Process individual block
-            for(int i = 0; i < 64; i++) {
-                Ant* ant = &ants[i];
-
-                // Digest left-byte into init pos
-                int shift = block[i*2] % 64;
-                Vector v;
-                v.i = shift % 8;
-                v.j = shift / 8;
-
-                // Pad ant's square
-                vec_add(&ant->pos, &v);
-                if(ant->pos.i >= (i % 8) * 8 + 8)
-                    ant->pos.i -= 8;
-
-                if(ant->pos.j >= (i / 8) * 8 + 8)
-                    ant->pos.j -= 8;
-
-                // Digest right-byte into init vel
-                int rot = block[i*2 + 1] % 4;
-                for(int j = 0; j < rot; j++)
-                    rotate_cw(&ant->vel);
-
-            }
+            
+            
 
         }
 
-        // Have more verbose output for larger files
-        cur++;
-        printf("Digested Block [%d/%d]\n", cur, len);
     }
 
 }
@@ -190,7 +158,7 @@ void tick() {
     }
 
 }
-
+ // 0A:64:61:6E:20:69:73:60:66:61:67:67:6F:74:0A:2A
 unsigned char* extract() {
 
     // Initialize and extract grid into segs
