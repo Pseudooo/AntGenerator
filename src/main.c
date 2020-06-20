@@ -3,12 +3,19 @@
 
 #include "util/vector.h"
 
+typedef struct {
+    Vector pos;
+    Vector vel;
+} Ant;
+
 /*
     Long consists of 64 bits so having 64 of them
     means we can use this as a bit-wise grid on
     which we can run our ant automaton
 */
 unsigned long grid[64];
+
+void tick(Ant* a);
 
 void print_grid();
 
@@ -26,7 +33,33 @@ int main()
 
     printf("Done!\n");
 
-    print_grid();
+    // ...
+
+}
+
+void tick(Ant* ant)
+{
+
+    // 1. Ant inverts current bit and moves forward
+    tog_bit(ant->pos);
+    vec_add(&ant->pos, &ant->vel);
+
+    // 2. Make sure ant hasn't left the bounds of grid
+    if(ant->pos.i < 0)
+        ant->pos.i = 63;
+    else if(ant->pos.i >= 64)
+        ant->pos.i = 0;
+
+    if(ant->pos.j < 0)
+        ant->pos.j = 63;
+    else if(ant->pos.j >= 64)
+        ant->pos.j = 0;
+
+    // 3. Check the state of the current tile and rotate
+    if(get_bit(ant->pos))
+        rotate_cw(&ant->vel);
+    else
+        rotate_acw(&ant->vel);
 
 }
 
