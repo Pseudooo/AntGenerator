@@ -3,9 +3,46 @@
 
 #include "util/vector.h"
 
+/*
+    Long consists of 64 bits so having 64 of them
+    means we can use this as a bit-wise grid on
+    which we can run our ant automaton
+*/
+unsigned long grid[64];
+
+void print_grid();
+
+int get_bit(Vector v);
+
 int main()
 {
-    
+
+    printf("Initializing...\n");
+
+    // Initializing the grid to be all 0s
+    for(int i = 0; i < 64; i++)
+        grid[i] = 0L;
+
+    printf("Done!\n");
+
+    print_grid();
+
+}
+
+void print_grid()
+{
+    Vector v;
+    for(v.j = 0; v.j < 64; v.j++)
+    {
+        for(v.i = 0; v.i < 64; v.i++)
+            printf("%c", get_bit(v) ? '#' : ' ');
+        printf("\n");
+    }
+}
+
+int get_bit(Vector v)
+{
+    return (grid[v.j] & (1UL << v.i)) != 0;
 }
 
 // // KEEPING FOR FUTURE REFERENCE
