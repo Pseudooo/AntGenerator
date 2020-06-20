@@ -37,6 +37,10 @@ int main()
 
 }
 
+/*
+    Function that will perform one "tick" on the grid
+    for a given ant.
+*/
 void tick(Ant* ant)
 {
 
