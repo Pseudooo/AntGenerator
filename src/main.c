@@ -13,6 +13,7 @@ unsigned long grid[64];
 void print_grid();
 
 int get_bit(Vector v);
+void tog_bit(Vector v);
 
 int main()
 {
@@ -43,6 +44,11 @@ void print_grid()
 int get_bit(Vector v)
 {
     return (grid[v.j] & (1UL << v.i)) != 0;
+}
+
+void tog_bit(Vector v)
+{
+    grid[v.j] ^= (1UL << v.i);
 }
 
 // // KEEPING FOR FUTURE REFERENCE
