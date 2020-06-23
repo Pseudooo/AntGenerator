@@ -3,13 +3,15 @@
 #include "Vector.h"
 
 #include <stdio.h>
+#include <string.h>
 
+typedef unsigned long u64;
 typedef struct {
     Vector pos;
     Vector vel;
 } Ant;
 
-unsigned long grid[64];
+u64 grid[64];
 Ant ants[16];
 
 void tick();
@@ -75,15 +77,40 @@ void tick()
 
 }
 
-void print_grid()
+void generate(void* dest, const u64 bytes)
 {
-    Vector v;
-    for(v.j = 0; v.j < 64; v.j++)
+
+    char* _dest = (char*) dest;
+
+    // Zero grid and reset ants
+    init_grid();
+    run_ticks(1024);
+
+    const int blocks = bytes / 512;
+    const int remainder = bytes % 512;
+
+    u64 head = 0ul;
+
+    if(blocks > 0)
     {
-        for(v.i = 0; v.i < 64; v.i++)
-            printf("%c", get_bit(v) ? '#' : ' ');
-        printf("\n");
+
+        for(int i = 0; i < blocks; i++)
+        {
+
+            // Copy grid to dest and update head
+            memcpy(dest+head, grid, 512);
+            head += 512;
+
+            // Run 1024 more ticks for next block
+            run_ticks(1024);
+
+        }
+
     }
+
+    // Pad out remaining
+    memcpy(dest+head, grid, remainder);
+
 }
 
 /*

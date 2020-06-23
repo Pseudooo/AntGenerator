@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "util/Vector.h"
 #include "util/Ant.h"
@@ -10,7 +11,19 @@ int main()
     init_grid();
     run_ticks(8192);
 
-    print_grid();
+    
+
+    char* buffer = calloc(1, 8);
+    if(buffer == NULL)
+    {
+        printf("Alloc failed!\n");
+        return 0;
+    }
+
+    generate(buffer, 8);
+    for(int i = 0; i < 8; i++)
+        printf("%02X ", buffer[i]);
+    printf("\n");
 
 }
 

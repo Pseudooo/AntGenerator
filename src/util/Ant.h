@@ -3,6 +3,6 @@
 
 void init_grid();
 void run_ticks(const int n);
-void print_grid();
+void generate(void* dest, const unsigned long bytes);
 
 #endif
