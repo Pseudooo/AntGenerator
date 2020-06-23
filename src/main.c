@@ -1,39 +1,16 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-#include "util/vector.h"
+#include "util/Vector.h"
+#include "util/Ant.h"
 
-typedef struct {
-    Vector pos;
-    Vector vel;
-} Ant;
-
-/*
-    Long consists of 64 bits so having 64 of them
-    means we can use this as a bit-wise grid on
-    which we can run our ant automaton
-*/
-unsigned long grid[64];
-
-void tick(Ant* a);
-
-void print_grid();
-
-int get_bit(Vector v);
-void tog_bit(Vector v);
 
 int main()
 {
 
-    printf("Initializing...\n");
+    init_grid();
+    run_ticks(8192);
 
-    // Initializing the grid to be all 0s
-    for(int i = 0; i < 64; i++)
-        grid[i] = 0L;
-
-    printf("Done!\n");
-
-    // ...
+    print_grid();
 
 }
 
@@ -41,52 +18,6 @@ int main()
     Function that will perform one "tick" on the grid
     for a given ant.
 */
-void tick(Ant* ant)
-{
-
-    // 1. Ant inverts current bit and moves forward
-    tog_bit(ant->pos);
-    vec_add(&ant->pos, &ant->vel);
-
-    // 2. Make sure ant hasn't left the bounds of grid
-    if(ant->pos.i < 0)
-        ant->pos.i = 63;
-    else if(ant->pos.i >= 64)
-        ant->pos.i = 0;
-
-    if(ant->pos.j < 0)
-        ant->pos.j = 63;
-    else if(ant->pos.j >= 64)
-        ant->pos.j = 0;
-
-    // 3. Check the state of the current tile and rotate
-    if(get_bit(ant->pos))
-        rotate_cw(&ant->vel);
-    else
-        rotate_acw(&ant->vel);
-
-}
-
-void print_grid()
-{
-    Vector v;
-    for(v.j = 0; v.j < 64; v.j++)
-    {
-        for(v.i = 0; v.i < 64; v.i++)
-            printf("%c", get_bit(v) ? '#' : ' ');
-        printf("\n");
-    }
-}
-
-int get_bit(Vector v)
-{
-    return (grid[v.j] & (1UL << v.i)) != 0;
-}
-
-void tog_bit(Vector v)
-{
-    grid[v.j] ^= (1UL << v.i);
-}
 
 // // KEEPING FOR FUTURE REFERENCE
 // // WILL BE REMOVED
