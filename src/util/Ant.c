@@ -92,7 +92,6 @@ void generate(void* dest, const u64 bytes)
     char* _dest = (char*) dest;
 
     // Zero grid and reset ants
-    init_grid();
     run_ticks(8192);
 
     const int blocks = bytes / 512;
