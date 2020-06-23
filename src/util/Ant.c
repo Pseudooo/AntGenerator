@@ -84,7 +84,7 @@ void generate(void* dest, const u64 bytes)
 
     // Zero grid and reset ants
     init_grid();
-    run_ticks(1024);
+    run_ticks(8192);
 
     const int blocks = bytes / 512;
     const int remainder = bytes % 512;
@@ -102,7 +102,7 @@ void generate(void* dest, const u64 bytes)
             head += 512;
 
             // Run 1024 more ticks for next block
-            run_ticks(1024);
+            run_ticks(8192);
 
         }
 
