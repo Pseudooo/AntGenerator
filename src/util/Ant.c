@@ -77,9 +77,18 @@ void tick()
 
 }
 
+/*
+    Will use the Ant Automata to generate x "random"
+    bytes
+*/
 void generate(void* dest, const u64 bytes)
 {
 
+    // NPE
+    if(dest == NULL)
+        return;
+
+    // Make local pointer that we can dereference
     char* _dest = (char*) dest;
 
     // Zero grid and reset ants
@@ -89,23 +98,18 @@ void generate(void* dest, const u64 bytes)
     const int blocks = bytes / 512;
     const int remainder = bytes % 512;
 
+    // Head to keep track of how much has been written
     u64 head = 0ul;
 
     if(blocks > 0)
     {
-
         for(int i = 0; i < blocks; i++)
         {
-
-            // Copy grid to dest and update head
+            // Copy grid, update head, run automata 
             memcpy(dest+head, grid, 512);
             head += 512;
-
-            // Run 1024 more ticks for next block
             run_ticks(8192);
-
         }
-
     }
 
     // Pad out remaining
