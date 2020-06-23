@@ -11,17 +11,12 @@ int main()
     init_grid();
     run_ticks(8192);
 
-    
+    const int n = 513;
 
-    char* buffer = calloc(1, 8);
-    if(buffer == NULL)
-    {
-        printf("Alloc failed!\n");
-        return 0;
-    }
+    unsigned char buffer[n];
 
-    generate(buffer, 8);
-    for(int i = 0; i < 8; i++)
+    generate(buffer, n);
+    for(int i = 0; i < n; i++)
         printf("%02X ", buffer[i]);
     printf("\n");
 
