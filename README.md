@@ -4,7 +4,7 @@
 AntGenerator is a project that allows generation of arbitrarily long, pseudo-random data. This data is generated using the cellular automata, Langton's Ant.
 
  - [Langton's Ant](#Langtons-Ant)
- - [Utilizing Langton's Ant](#Utilizing-Langtons-Ant)
+ - [Utilizing Langton's Ant](#Utilizing-Langtons-Ant)git
 
 ## Langton's Ant
 
