@@ -5,8 +5,6 @@ AntGenerator is a project that allows generation of arbitrarily long, pseudo-ran
 
  - [Langton's Ant](#Langtons-Ant)
  - [Utilizing Langton's Ant](#Utilizing-Langtons-Ant)
- - [Digesting Data](#Digesting-Data)
- - [The Implementation](#The-Implementation)
 
 ## Langton's Ant
 
