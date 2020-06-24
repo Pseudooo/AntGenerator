@@ -19,7 +19,8 @@ int get_bit(Vector v);
 void tog_bit(Vector v);
 
 /*
-    Clears the grid to be all zeros
+    Resets the grid to be all 0s and resets all ants
+    back to their original positions.
 */
 void init_grid()
 {
@@ -29,7 +30,7 @@ void init_grid()
     for(int i = 0; i < 4; i++)
         for(int j = 0; j < 4; j++)
         {
-            Ant a = {{j, i}, {1, 0}};
+            const Ant a = {{j, i}, {1, 0}};
             ants[i*4+j] = a;
         }
 }
@@ -80,6 +81,8 @@ void tick()
 /*
     Will use the Ant Automata to generate x "random"
     bytes
+    Note: Will not reset the grid before/after execution
+    so runs can be called sequentially to avoid large buffers
 */
 void generate(void* dest, const u64 bytes)
 {
