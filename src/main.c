@@ -17,8 +17,6 @@ int main()
     generate(arr, n * sizeof(unsigned long));
 
     for(int i = 0; i < n; i++)
-    {
         printf("Index %03d: %016lx\n", i, arr[i]);
-    }
 
 }
