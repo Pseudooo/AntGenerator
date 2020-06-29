@@ -30,7 +30,7 @@ void init_grid()
     for(int i = 0; i < 4; i++)
         for(int j = 0; j < 4; j++)
         {
-            const Ant a = {{j, i}, {1, 0}};
+            const Ant a = {{16*j, 16*i}, {1, 0}};
             ants[i*4+j] = a;
         }
 }
@@ -116,6 +116,41 @@ void generate(void* dest, const u64 bytes)
 
     // Pad out remaining
     memcpy(dest+head, grid, remainder);
+
+}
+
+/*
+    Will digest a given data source
+*/
+void digest(void* src, const u64 bytes)
+{
+
+    // Establish char type to allow deref
+    unsigned char* _src = (unsigned char*) src;
+
+    // Initialize bank with ant's current positions on grid
+    // modulo 256
+    unsigned char bank[16];
+    for(int i = 0; i < 16; i++)
+    {
+        Vector v = ants[i].pos;
+        bank[i] = v.i + 64*v.j;
+    }
+
+    // Digest the actual data stream into the ants positions
+    for(u64 digested = 0ul; digested < bytes; digested += 16)
+        for(int i = 0; i < 16; i++)
+            // If we've reached the end pad with 0s
+            bank[i] += digested + i < bytes ? _src[digested+i] : 0;
+
+    // Convert the bank into positions for each individual ant
+    for(int i = 0; i < 4; i++)
+        for(int j = 0; j < 4; j++)
+        {
+            const int idx = i + 4*j;
+            ants[idx].pos.i = 16*i + (bank[idx] % 8);
+            ants[idx].pos.j = 16*j + (bank[idx] / 8);
+        }
 
 }
 
